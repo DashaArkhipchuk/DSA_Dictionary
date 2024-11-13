@@ -5,7 +5,8 @@
 using namespace std;
 
 // Node structure for AVL Tree
-struct Node {
+class Node {
+public:
     string key;
     vector<string> values;
     int height;
@@ -73,9 +74,9 @@ private:
         if (!node)
             return new Node(key, value);
 
-        if (key < node->key)
+        if (key.compare(node->key) < 0) //key < node->key
             node->left = insert(node->left, key, value);
-        else if (key > node->key)
+        else if (key.compare(node->key) > 0) //key > node->key
             node->right = insert(node->right, key, value);
         else {
             // Key already exists, append the value
