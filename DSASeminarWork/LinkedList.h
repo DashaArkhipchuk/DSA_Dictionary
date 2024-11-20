@@ -1,34 +1,154 @@
-#pragma once
-#include <cstddef>
-using namespace std;
 
-struct Node {
+#pragma once
+
+
+template <typename T> struct Node {
 
     // To store the Value or data.
-    int data;
+    T data;
 
     // Pointer to point the Previous Element
-    Node* prev;
+    Node<T>* prev;
 
     // Pointer to point the Next Element
-    Node* next;
+    Node<T>* next;
 
     // Constructor
-    Node(int d) {
+    Node(T d) {
         data = d;
         prev = next = nullptr;
     }
 };
 
-class LinkedList
+template <typename T> class LinkedList
 {
+    Node<T>* head;
+
+public :
+    LinkedList();
     // Insert a node at the beginning
-    Node* insertBegin(Node* head, int data);
+    Node<T>* insertBegin(T data);
 
-    Node* insertEnd(Node* head, int new_data);
+    Node<T>* insertEnd(T new_data);
+
     // Function to insert a new node at a given position
-    Node* insertAtPosition(Node* head, int pos, int new_data);
+    Node<T>* insertAtPosition(int pos, T new_data);
 
-    void printList(Node* head);
+    void printList();
+    bool isEmpty();
 };
+
+template <typename T> LinkedList<T>::LinkedList() {
+    this->head = nullptr;
+}
+
+// Insert a node at the beginning
+template <typename T> Node<T>* LinkedList<T>::insertBegin(T data) {
+
+    // Create a new node
+    Node* new_node = new Node(data);
+
+    // Make next of it as head
+    new_node->next = head;
+
+    // Set previous of head as new node
+    if (head != NULL) {
+        head->prev = new_node;
+    }
+
+    // Return new node as new head
+    return new_node;
+}
+
+template <typename T> Node<T>* LinkedList<T>::insertEnd(T new_data) {
+
+    // Create a new node
+    Node<T>* new_node = new Node<T>(new_data);
+
+    // If the linked list is empty, set the new 
+    //node as the head of linked list
+    if (head == NULL) {
+        head = new_node;
+    }
+    else {
+        Node<T>* curr = head;
+        while (curr->next != NULL) {
+            curr = curr->next;
+        }
+
+        // Set the next of last node to new node
+        curr->next = new_node;
+
+        // Set prev of new node to last node
+        new_node->prev = curr;
+    }
+    return head;
+}
+// Function to insert a new node at a given position
+template <typename T> Node<T>* LinkedList<T>::insertAtPosition(int pos, T new_data) {
+
+    // Create a new node
+    Node<T>* new_node = new Node<T>(new_data);
+
+    // Insertion at the beginning
+    if (pos == 1) {
+        new_node->next = head;
+
+        // If the linked list is not empty, set the prev
+        //of head to new node
+        if (head != NULL)
+            head->prev = new_node;
+
+        // Set the new node as the head of linked list
+        head = new_node;
+        return head;
+    }
+
+    Node<T>* curr = head;
+    // Traverse the list to find the node before the
+    // insertion point
+    for (int i = 1; i < pos - 1 && curr != NULL; ++i) {
+        curr = curr->next;
+    }
+
+    // If the position is out of bounds
+    if (curr == NULL) {
+        //THROW SOME EXCEPTION
+        //std::cout << "Position is out of bounds." << endl;
+        delete new_node;
+        return head;
+    }
+
+    // Set the prev of new node to curr
+    new_node->prev = curr;
+
+    // Set the new of new node to next of curr
+    new_node->next = curr->next;
+
+    // Update the next of current node to new node
+    curr->next = new_node;
+
+    // If the new node is not the last node, update prev
+     //of next node to new node
+    if (new_node->next != NULL)
+        new_node->next->prev = new_node;
+
+    // Return the head of the doubly linked list
+    return head;
+}
+
+template <typename T> void LinkedList<T>::printList() {
+    Node<T>* curr = head;
+    while (curr != NULL) {
+        //COUT
+        std::cout << curr->data << " ";
+        curr = curr->next;
+    }
+    std::cout << "\n";
+}
+
+template <typename T> bool LinkedList<T>::isEmpty()
+{
+    return head == NULL;
+}
 

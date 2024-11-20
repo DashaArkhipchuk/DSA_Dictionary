@@ -26,5 +26,11 @@
     <ClInclude Include="LinkedList.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MultimapAVL.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Menu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
