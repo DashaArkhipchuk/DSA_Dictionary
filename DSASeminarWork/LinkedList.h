@@ -36,7 +36,13 @@ public :
 
     void printList();
     bool isEmpty();
+    Node<T>* getHead() const;
+    bool remove(const T& value);
 };
+
+template <typename T> Node<T>* LinkedList<T>::getHead() const{
+    return head;
+}
 
 template <typename T> LinkedList<T>::LinkedList() {
     this->head = nullptr;
@@ -152,3 +158,45 @@ template <typename T> bool LinkedList<T>::isEmpty()
     return head == NULL;
 }
 
+template <typename T> bool LinkedList<T>::remove(const T& value) {
+    // Case 1: If the list is empty
+    if (head == nullptr) {
+        return false;  // No node to remove
+    }
+
+    Node<T>* curr = head;
+
+    // Case 2: If the node to be removed is the head node
+    if (curr->data == value) {
+        head = curr->next;  // Move head to the next node
+
+        // If there is a node after the head, update its prev pointer
+        if (head != nullptr) {
+            head->prev = nullptr;
+        }
+
+        delete curr;  // Delete the old head
+        return true;   // Successfully removed
+    }
+
+    // Case 3: Traverse the list to find the node to remove
+    while (curr != nullptr) {
+        if (curr->data == value) {
+            // Case 3a: Remove the node in the middle or end
+            if (curr->prev != nullptr) {
+                curr->prev->next = curr->next;
+            }
+
+            if (curr->next != nullptr) {
+                curr->next->prev = curr->prev;
+            }
+
+            delete curr;  // Delete the node
+            return true;   // Successfully removed
+        }
+        curr = curr->next;
+    }
+
+    // Case 4: If the value was not found in the list
+    return false;
+}

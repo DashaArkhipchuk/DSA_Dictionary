@@ -6,15 +6,78 @@
 using namespace std;
 
 void InsertData(MultimapAVL& mmap) {
-    std::string key, value;
-    std::cout << "Enter the word: ";
-    std::getline(std::cin >> std::ws, key);
-    std::cout << "Enter the translation: ";
-    std::getline(std::cin, value);
+    string key, value;
+    cout << "Enter the word: ";
+    getline(std::cin >> std::ws, key); // std::ws ignoring whitespaces
+    cout << "Enter the translation: ";
+    getline(std::cin, value);
     mmap.insert(key, value);
-    std::cout << "Inserted (" << key << ", " << value << ") into the dictionary.\n";
+    cout << "Inserted (" << key << ", " << value << ") into the dictionary.\n";
 }
 
+void FindTranslations(MultimapAVL& mmap, string searchKey) {
+
+    LinkedList<string> values = mmap.find(searchKey);
+    if (!values.isEmpty()) {
+        cout << "\nValues for key " << searchKey << ": ";
+        values.printList();
+    }
+    else {
+        cout << "\nKey " << searchKey << " not found.\n";
+    }
+}
+
+
+// Helper function to export data to a file
+void ExportData(MultimapAVL& map) {
+    cout << "Enter the file name to export data: ";
+    string filename;
+    cin >> filename;
+    try {
+        map.exportToFile(filename);
+        cout << "Data exported successfully to " << filename << ".\n";
+    }
+    catch (const exception& e) {
+        cout << "Error exporting data: " << e.what() << "\n";
+    }
+}
+void ImportData(MultimapAVL& map) {
+    cout << "Enter the file name to import data: ";
+    string filename;
+    cin >> filename;
+    try {
+        map.importFromFile(filename);
+        cout << "Data imported successfully from " << filename << ".\n";
+    }
+    catch (const exception& e) {
+        cout << "Error importing data: " << e.what() << "\n";
+    }
+}
+
+void RemoveKey(MultimapAVL& mmap, string searchKey) {
+    mmap.remove(searchKey);
+
+}
+
+void RemoveValue(MultimapAVL& mmap) {
+    string key, value;
+    cout << "Enter the word: ";
+    getline(std::cin >> std::ws, key); // std::ws ignoring whitespaces
+    cout << "Enter the translation: ";
+    getline(std::cin, value);
+    mmap.removeValue(key, value);
+}
+
+void EditTranslation(MultimapAVL& mmap) {
+    string key, value, newvalue;
+    cout << "Enter the word: ";
+    getline(std::cin >> std::ws, key); // std::ws ignoring whitespaces
+    cout << "Enter old translation: ";
+    getline(std::cin, value);
+    cout << "Enter new translation: ";
+    getline(std::cin, newvalue);
+    mmap.editValue(key, value, newvalue);
+}
 
 // Example usage
 int main() {
@@ -27,8 +90,7 @@ int main() {
         "Import data",
         "Export data",
         "Print the dictionary",
-        "Insert new word with a translation",
-        "Insert new translation to a word",
+        "Insert a word with a translation",
         "Find translations of a word",
         "Remove a word",
         "Remove a translation for the word",
@@ -55,12 +117,10 @@ int main() {
         case 0:
             return 0;
         case 1:
-            // Implement functionality for "Import data"
-            std::cout << "Import data selected.\n";
+            ImportData(map);
             break;
         case 2:
-            // Implement functionality for "Export data"
-            std::cout << "Export data selected.\n";
+            ExportData(map);
             break;
         case 3:
             map.inorder();
@@ -68,12 +128,35 @@ int main() {
         case 4:
             InsertData(map);
             break;
-        case 11:
+        case 5:
+        {
+            string searchKey;
+            cout << "Enter the word: ";
+            getline(std::cin >> std::ws, searchKey);
+            FindTranslations(map, searchKey);
+        }
+        break;
+        case 6:
+        {
+            string searchKey;
+            cout << "Enter the word: ";
+            getline(std::cin >> std::ws, searchKey);
+            RemoveKey(map, searchKey);
+        }
+            break;
+        case 7:
+            RemoveValue(map);
+            break;
+        case 8:
+            break;
+        case 9:
+            EditTranslation(map);
+            break;
+        case 10:
         {
             size_t sortSelection = sortMenu.Show();
             switch (sortSelection) {
             case 0:
-                std::cout << "Returning to previous menu.\n";
                 break;
             case 1:
                 std::cout << "Sorting translations ascending.\n";
@@ -83,7 +166,7 @@ int main() {
                 break;
             }
         }
-            break;
+        break;
         default:
             std::cout << "Option not implemented yet.\n";
         }

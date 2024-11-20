@@ -1,5 +1,7 @@
 #pragma once
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include "LinkedList.h"
 using namespace std;
 
@@ -144,6 +146,136 @@ private:
         }
     }
 
+    void exportHelper(TreeNode* node, ofstream& outFile) const {
+        if (node) {
+            exportHelper(node->left, outFile); // Traverse the left subtree
+            outFile << node->key << ": ";
+
+            // Traverse the linked list to write all translations
+            Node<string>* current = node->values.getHead();
+            while (current) {
+                outFile << current->data;
+                if (current->next) // Add a comma only if there's another translation
+                    outFile << ", ";
+                current = current->next;
+            }
+
+            outFile << endl;
+            exportHelper(node->right, outFile); // Traverse the right subtree
+        }
+    }
+
+    void processLine(const string& line) {
+        size_t colonPos = line.find(":");
+        if (colonPos == string::npos) {
+            throw runtime_error("Invalid file format. Missing colon (:).");
+        }
+
+        string key = line.substr(0, colonPos); // Extract the word (key)
+        string translations = line.substr(colonPos + 1); // Extract the translations part
+
+        stringstream ss(translations);
+        string translation;
+
+        while (getline(ss, translation, ',')) {
+            // Trim leading and trailing spaces (if necessary)
+            size_t start = translation.find_first_not_of(" ");
+            size_t end = translation.find_last_not_of(" ");
+            if (start != string::npos && end != string::npos) {
+                translation = translation.substr(start, end - start + 1);
+            }
+
+            insert(key, translation); // Insert the word and translation
+        }
+    }
+
+    // Remove a key from the tree
+    TreeNode* remove(TreeNode* node, const string& key, bool& found) {
+        if (!node) {
+            found = false;
+            return node; // Node not found
+        }
+
+        // 1. Perform the normal BST delete
+        if (key < node->key) {
+            node->left = remove(node->left, key, found);
+        }
+        else if (key > node->key) {
+            node->right = remove(node->right, key, found);
+        }
+        else {
+            // Node found, perform deletion
+            found = true;
+
+            // Node with only one child or no child
+            if (!node->left) {
+                TreeNode* temp = node->right;
+                delete node;
+                return temp;
+            }
+            else if (!node->right) {
+                TreeNode* temp = node->left;
+                delete node;
+                return temp;
+            }
+
+            // Node with two children: get the inorder successor
+            TreeNode* temp = getMinNode(node->right);
+
+            // Copy the inorder successor's content to this node
+            node->key = temp->key;
+            node->values = temp->values;
+
+            // Delete the inorder successor
+            node->right = remove(node->right, temp->key, found);
+        }
+
+        // 2. Update the height of the current node
+        node->height = 1 + max(getHeight(node->left), getHeight(node->right));
+
+        // 3. Check the balance factor and balance the node
+        int balance = getBalance(node);
+
+        // Left Left Case
+        if (balance > 1 && getBalance(node->left) >= 0) {
+            return rightRotate(node);
+        }
+
+        // Right Right Case
+        if (balance < -1 && getBalance(node->right) <= 0) {
+            return leftRotate(node);
+        }
+
+        // Left Right Case
+        if (balance > 1 && getBalance(node->left) < 0) {
+            node->left = leftRotate(node->left);
+            return rightRotate(node);
+        }
+
+        // Right Left Case
+        if (balance < -1 && getBalance(node->right) > 0) {
+            node->right = rightRotate(node->right);
+            return leftRotate(node);
+        }
+
+        // Return the (unchanged) node pointer
+        return node;
+    }
+
+
+    // Helper function to get the minimum node in the tree (used for finding in-order successor)
+    TreeNode* getMinNode(TreeNode* node) {
+        TreeNode* current = node;
+        while (current && current->left) {
+            current = current->left;
+        }
+        return current;
+    }
+
+    bool removeValueFromNode(TreeNode* node, const string& translation) {
+        return node->values.remove(translation);  // Try to remove the translation
+    }
+
 public:
     // Constructor
     MultimapAVL() : root(nullptr) {}
@@ -170,4 +302,93 @@ public:
     void inorder() const {
         inorderHelper(root);
     }
+
+    void exportToFile(const string& filename) const {
+        ofstream outFile(filename);
+        if (!outFile) {
+            cerr << "Error opening file for writing: " << filename << endl;
+            return;
+        }
+        exportHelper(root, outFile);
+        outFile.close();
+    }
+
+    void importFromFile(const string& filename) {
+        ifstream inFile(filename);
+        if (!inFile) {
+            cerr << "Error opening file for reading: " << filename << endl;
+            return;
+        }
+
+        string line;
+        while (getline(inFile, line)) {
+            processLine(line);
+        }
+
+        inFile.close();
+    }
+
+    void remove(string key) {
+        bool found = false;
+        root = remove(root, key, found);
+        if (found) {
+            cout << "Key '" << key << "' removed successfully!" << endl;
+        }
+        else {
+            cout << "Key '" << key << "' not found!" << endl;
+        }
+    }
+
+    void removeValue(string key, string translation) {
+        TreeNode* node = search(root, key);  // Find the node by key
+        if (!node) {
+            cout << "Key '" << key << "' not found!" << endl;
+            return;
+        }
+
+        bool removed = removeValueFromNode(node, translation);  // Try to remove the translation
+        if (removed) {
+            cout << "Translation '" << translation << "' removed from key '" << key << "'." << endl;
+        }
+        else {
+            cout << "Translation '" << translation << "' not found for key '" << key << "'!" << endl;
+        }
+    }
+
+    void editValue(string key, string oldTranslation, string newTranslation) {
+        // Find the node associated with the key
+        TreeNode* node = search(root, key);
+
+        // If the node doesn't exist, the word is not found
+        if (!node) {
+            cout << "Word '" << key << "' not found!" << endl;
+            return;
+        }
+
+        // Try to remove the old translation and get its position
+        Node<string>* oldNode = node->values.getHead();
+        int position = 1;  // Position in the linked list
+
+        // Traverse the linked list to find the old translation
+        while (oldNode != nullptr) {
+            if (oldNode->data == oldTranslation) {
+                // Old translation found, remove it
+                node->values.remove(oldTranslation);
+
+                // Insert the new translation at the same position
+                node->values.insertAtPosition(position, newTranslation);
+
+                cout << "Translation '" << oldTranslation << "' replaced with '" << newTranslation << "' at position " << position << " for word '" << key << "'." << endl;
+                return;
+            }
+            oldNode = oldNode->next;
+            position++;
+        }
+
+        // If the old translation was not found
+        cout << "Translation '" << oldTranslation << "' not found for word '" << key << "'!" << endl;
+    }
+
+
+
 };
