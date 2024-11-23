@@ -276,6 +276,18 @@ private:
         return node->values.remove(translation);  // Try to remove the translation
     }
 
+
+    void SortTranslations(TreeNode* node, bool ascending) {
+        if (!node) return;
+
+        // In-order traversal: left subtree, node, right subtree
+        SortTranslations(node->left, ascending);
+
+        node->values.sort(ascending);
+
+        SortTranslations(node->right, ascending);
+    }
+
 public:
     // Constructor
     MultimapAVL() : root(nullptr) {}
@@ -389,6 +401,40 @@ public:
         cout << "Translation '" << oldTranslation << "' not found for word '" << key << "'!" << endl;
     }
 
+    void EditKey(string oldKey, string newKey) {
+        // Find the node associated with the old key
+        TreeNode* node = search(root, oldKey);
 
+        // If the node doesn't exist, the key is not found
+        if (!node) {
+            cout << "Word '" << oldKey << "' not found!" << endl;
+            return;
+        }
+
+        // Store the translations of the old key
+        LinkedList<string> translations = node->values;
+
+        // Remove the old key
+        bool found = false;
+        root = remove(root, oldKey, found);
+
+        if (!found) {
+            cout << "Failed to remove the old key '" << oldKey << "'!" << endl;
+            return;
+        }
+
+        // Insert the new key with the existing translations
+        Node<string>* current = translations.getHead();
+        while (current != nullptr) {
+            insert(newKey, current->data);
+            current = current->next;
+        }
+
+        cout << "Key '" << oldKey << "' successfully changed to '" << newKey << "'." << endl;
+    }
+
+    void sortTranslations(bool ascending) {
+        SortTranslations(root, ascending);
+    }
 
 };

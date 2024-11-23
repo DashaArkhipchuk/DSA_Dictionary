@@ -38,6 +38,16 @@ public :
     bool isEmpty();
     Node<T>* getHead() const;
     bool remove(const T& value);
+    void sort(bool ascending = true);
+
+
+private:
+    Node<T>* split(Node<T>* head);
+    Node<T>* merge(Node<T>* first, Node<T>* second, bool ascending);
+    Node<T>* MergeSort(Node<T>* head, bool ascending = true);
+
+
+
 };
 
 template <typename T> Node<T>* LinkedList<T>::getHead() const{
@@ -199,4 +209,75 @@ template <typename T> bool LinkedList<T>::remove(const T& value) {
 
     // Case 4: If the value was not found in the list
     return false;
+}
+
+// Function to split the doubly linked list into two halves
+template <typename T> Node<T>* LinkedList<T>::split(Node<T>* head) {
+    Node<T>* fast = head;
+    Node<T>* slow = head;
+
+    // Move fast pointer two steps and slow pointer
+    // one step until fast reaches the end
+    while (fast != NULL && fast->next != NULL
+        && fast->next->next != NULL) {
+        fast = fast->next->next;
+        slow = slow->next;
+    }
+
+    // Split the list into two halves
+    Node<T>* temp = slow->next;
+    slow->next = NULL;
+    if (temp != NULL) {
+        temp->prev = NULL;
+    }
+    return temp;
+}
+
+template <typename T>
+Node<T>* LinkedList<T>::merge(Node<T>* first, Node<T>* second, bool ascending) {
+    // If either list is empty, return the other list
+    if (first == NULL) return second;
+    if (second == NULL) return first;
+
+    // Choose the order based on the 'ascending' flag
+    if ((ascending && first->data < second->data) || (!ascending && first->data > second->data)) {
+        // Recursively merge the rest of the lists
+        first->next = merge(first->next, second, ascending);
+        if (first->next != NULL) {
+            first->next->prev = first;
+        }
+        first->prev = NULL;
+        return first;
+    }
+    else {
+        // Recursively merge the rest of the lists
+        second->next = merge(first, second->next, ascending);
+        if (second->next != NULL) {
+            second->next->prev = second;
+        }
+        second->prev = NULL;
+        return second;
+    }
+}
+
+// Function to perform merge sort on a doubly linked list
+template <typename T> Node<T>* LinkedList<T>::MergeSort(Node<T>* head, bool ascending) {
+    // Base case: if the list is empty or has only one node, it's already sorted
+    if (head == NULL || head->next == NULL) {
+        return head;
+    }
+
+    // Split the list into two halves
+    Node<T>* second = split(head);
+
+    // Recursively sort each half
+    head = MergeSort(head, ascending);
+    second = MergeSort(second, ascending);
+
+    // Merge the two sorted halves
+    return merge(head, second, ascending);
+}
+
+template <typename T> void LinkedList<T>::sort(bool ascending) {
+    head = MergeSort(head, ascending);
 }

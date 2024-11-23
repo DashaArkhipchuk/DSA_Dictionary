@@ -1,11 +1,5 @@
 ﻿  DSASeminarWork.cpp
-C:\Users\arkhypch\dsa\DSASeminarWork\Menu.h(28,22): warning C4838: Převod z: unsigned short na: SHORT vyžaduje zužující převod.
-  (kompilování zdrojového souboru DSASeminarWork.cpp)
-  
-C:\Users\arkhypch\dsa\DSASeminarWork\Menu.h(28,30): warning C4838: Převod z: unsigned short na: SHORT vyžaduje zužující převod.
-  (kompilování zdrojového souboru DSASeminarWork.cpp)
-  
-C:\Users\arkhypch\dsa\DSASeminarWork\Menu.h(39,37): warning C4267: argument: Převod z: size_t na: unsigned short, může dojít ke ztrátě dat.
-  (kompilování zdrojového souboru DSASeminarWork.cpp)
-  
-  DSASeminarWork.vcxproj -> C:\Users\arkhypch\dsa\x64\Debug\DSASeminarWork.exe
+D:\DSA\DSASeminarWork\DSASeminarWork\Menu.h(28,22): warning C4838: conversion from 'unsigned short' to 'SHORT' requires a narrowing conversion
+D:\DSA\DSASeminarWork\DSASeminarWork\Menu.h(28,30): warning C4838: conversion from 'unsigned short' to 'SHORT' requires a narrowing conversion
+D:\DSA\DSASeminarWork\DSASeminarWork\Menu.h(39,37): warning C4267: 'argument': conversion from 'size_t' to 'unsigned short', possible loss of data
+  DSASeminarWork.vcxproj -> D:\DSA\DSASeminarWork\x64\Debug\DSASeminarWork.exe

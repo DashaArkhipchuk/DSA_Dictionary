@@ -79,6 +79,26 @@ void EditTranslation(MultimapAVL& mmap) {
     mmap.editValue(key, value, newvalue);
 }
 
+void EditKey(MultimapAVL& mmap) {
+    string key, newKey;
+    cout << "Enter the old word: ";
+    getline(std::cin >> std::ws, key); // std::ws ignoring whitespaces
+    cout << "Enter new word: ";
+    getline(std::cin, newKey);
+    mmap.EditKey(key, newKey);
+}
+
+void SortTranslations(TreeNode* node, bool ascending) {
+    if (!node) return;
+
+    // In-order traversal: left subtree, node, right subtree
+    SortTranslations(node->left, ascending);
+
+    node->values.sort(ascending);
+
+    SortTranslations(node->right, ascending);
+}
+
 // Example usage
 int main() {
 
@@ -148,6 +168,7 @@ int main() {
             RemoveValue(map);
             break;
         case 8:
+            EditKey(map);
             break;
         case 9:
             EditTranslation(map);
@@ -159,10 +180,10 @@ int main() {
             case 0:
                 break;
             case 1:
-                std::cout << "Sorting translations ascending.\n";
+                map.sortTranslations(true);
                 break;
             case 2:
-                std::cout << "Sorting translations descending.\n";
+                map.sortTranslations(false);
                 break;
             }
         }
@@ -174,43 +195,5 @@ int main() {
     }
 
     return 0;
-
-    //MultimapAVL mmap;
-
-    //// Inserting key-value pairs
-    //mmap.insert("String 1", "Value 1-1");
-    //mmap.insert("String 2", "Value 2-1");
-    //mmap.insert("String 3", "Value 3-1");
-    //mmap.insert("String 1", "Value 1-2");
-    //mmap.insert("String 2", "Value 2-2");
-    //mmap.insert("String 4", "Value 4-1");
-    //mmap.insert("String 5", "Value 5-1");
-    //mmap.insert("String 4", "Value 4-2");
-
-    //cout << "Multimap contents (in-order traversal):\n";
-    //mmap.inorder();
-
-    //// Searching for values
-    //string searchKey = "String 1";
-    //LinkedList<string> values = mmap.find(searchKey);
-    //if (!values.isEmpty()) {
-    //    cout << "\nValues for key " << searchKey << ": ";
-    //    values.printList();
-    //}
-    //else {
-    //    cout << "\nKey " << searchKey << " not found.\n";
-    //}
-
-    //searchKey = "String 6";
-    //values = mmap.find(searchKey);
-    //if (!values.isEmpty()) {
-    //    cout << "\nValues for key " << searchKey << ": ";
-    //    values.printList();
-    //}
-    //else {
-    //    cout << "\nKey " << searchKey << " not found.\n";
-    //}
-
-    //return 0;
 
 }
